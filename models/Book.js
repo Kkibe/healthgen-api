@@ -3,24 +3,24 @@ const BookSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
     img: {
       type: String,
-      required: true,
+      required: false,
     },
     file: {
       type: String,
-      required: true,
+      required: false,
     },
     desc: {
       type: String,
-      required: true,
+      required: false,
     },
     author: {
       type: String,
-      required: true
+      required: false
     },
     downloads: {
       type: Number,
