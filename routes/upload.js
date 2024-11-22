@@ -1,14 +1,20 @@
 const multer = require("multer");
-const { verifyToken } = require("./verifyToken");
-const router = require('express').Router();
-const storage = multer.diskStorage({
-    destination: "images",
-    filename: (req, file, cd) => {
-      cd(null, req.body.name);
-    }
-})
-const upload = multer({storage: storage});
-router.post("/",verifyToken, upload.single('file'), (req, res) => {
-    res.status(200).json("File has been uploaded");
-});
-module.exports = router;
+const path = require("path");
+
+// Reusable Multer Storage Configuration
+const storage = (folder) =>
+  multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, `./${folder}`);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + "_" + path.extname(file.originalname);
+      cb(null, file.fieldname + "_" + uniqueSuffix);
+    },
+  });
+
+// Middleware for File Upload
+const upload = (folder, fieldName) =>
+  multer({ storage: storage(folder) }).single(fieldName);
+
+module.exports = {upload};

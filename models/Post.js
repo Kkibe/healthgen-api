@@ -10,9 +10,9 @@ const PostSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    img: {
+    image: {
       type: String,
-      required: false,
+      required: true,
     },
     author: {
       type: String,

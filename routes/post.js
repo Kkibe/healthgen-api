@@ -1,17 +1,33 @@
 const router = require('express').Router();
 const Post = require('../models/Post');
 const {verifyTokenAndAuthorization,verifyToken} = require('./verifyToken');
-//CREATE A POST
-router.post('/', verifyToken, async (req, res) => {
-    const newPost = new Post(req.body);
-    try{
-        const savedPost = await newPost.save();
-        res.status(200).json(savedPost);
+const {upload} = require("./upload");
 
-    } catch (err) {
-        res.status(500).json(err);
-    }
-})
+
+// CREATE A POST
+router.post("/", verifyToken, (req, res, next) => {
+    // Use the upload middleware for the "image" field
+    upload("images", "image")(req, res, async (err) => {
+      if (err) {
+        return res.status(500).json({ message: "File upload failed", error: err });
+      }
+  
+      // Merge the uploaded file path into the body
+      const newPostData = {
+        ...req.body,
+        image: req.file ? req.file.path : null, // Save file path
+      };
+  
+      try {
+        const newPost = new Post(newPostData);
+        const savedPost = await newPost.save();
+        return res.status(200).json(savedPost);
+      } catch (err) {
+        return res.status(500).json(err);
+      }
+    });
+  });
+
 //UPDATE A POST
 router.put('/:id', verifyTokenAndAuthorization, async (req, res) => {
     try{ 
@@ -56,9 +72,10 @@ router.get('/', async (req, res) => {
         } else {
             posts = await Post.find();
         }
-        res.status(200).json(posts);
+        return res.status(200).json(posts);
     } catch (err) {
         res.status(500).json(err);
     }
+   res.send("Hey")
 })
 module.exports = router;
